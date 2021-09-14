@@ -16,10 +16,10 @@ class SimHash(object):
             mask = 2 ** 128 - 1
             for c in source:
                 x = ((x * m) ^ ord(c)) & mask
-                x ^= len(source)
-                if x == -1:
-                    x = -2
-                x = bin(x).replace('0b', '').zfill(64)[-64:]
+            x ^= len(source)
+            if x == -1:
+                x = -2
+            x = bin(x).replace('0b', '').zfill(64)[-64:]
             return str(x)
 
     def getHash(self, getstr):
@@ -89,8 +89,11 @@ class PlagiarismChecker():
             similar = self.analyze_similar_text(origin_file_source, plagiarize_file_source)
             correct_similar = round(similar, 2)
 
+            str1 = "The similar level is: "
+            str2 = " between the two articles.\n"
+
             similar_level_value.writelines(
-                "The similar level is:" + str(correct_similar) + "between the two articles.\n")
+                str1 + str(correct_similar) + str2)
             print(f"The similar level is: %.2f between article:{argv[1]} and article:{argv[2]}.\n" % correct_similar)
 
             origin_file.close()
