@@ -76,23 +76,22 @@ class PlagiarismChecker():
             similar_level = 1 - distance / max_hashbit
             return (similar_level)
 
-
-    def check_similar_level(self,argv):
+    def check_similar_level(self, argv):
         try:
 
-            origin_file = open(argv[1],'rt',encoding='utf-8')
-            plagiarize_file = open(argv[2],'rt',encoding='utf-8')
-            similar_level_value = open(argv[3],'a+',encoding='utf-8')
+            origin_file = open(argv[1], 'rt', encoding='utf-8')
+            plagiarize_file = open(argv[2], 'rt', encoding='utf-8')
+            similar_level_value = open(argv[3], 'a+', encoding='utf-8')
 
             origin_file_source = origin_file.read()
             plagiarize_file_source = plagiarize_file.read()
 
-            similar = self.analyze_similar_text(origin_file_source,plagiarize_file_source)
-            correct_similar = round(similar,2)
+            similar = self.analyze_similar_text(origin_file_source, plagiarize_file_source)
+            correct_similar = round(similar, 2)
 
-            similar_level_value.writelines("The similar level is:"+str(correct_similar)+"between the two articles.\n")
+            similar_level_value.writelines(
+                "The similar level is:" + str(correct_similar) + "between the two articles.\n")
             print(f"The similar level is: %.2f between article:{argv[1]} and article:{argv[2]}.\n" % correct_similar)
-
 
             origin_file.close()
             plagiarize_file.close()
@@ -107,6 +106,5 @@ class PlagiarismChecker():
 
 
 if __name__ == '__main__':
-
     Check = PlagiarismChecker()
     Check.check_similar_level(argv)
