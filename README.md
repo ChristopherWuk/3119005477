@@ -6,6 +6,7 @@ Hi there.
 | 这个作业要求在哪里 	  |[个人项目作业](https://edu.cnblogs.com/campus/gdgy/InformationSecurity1912-Softwareengineering/homework/12146)                 |
 | 这个作业的目标   	  |1.                                                                                                                           |
 
+# 计划
 
 |PSP2.1						|Personal Software Process Stages	|预估耗时（分钟） 	|实际耗时（分钟） 	|
 |:--						|:--								|:--:				|:--:				|
@@ -27,7 +28,7 @@ Hi there.
 |							|· 合计          					|820				|					|
 
 
-
+# 开发
 
 ## 题目
 
@@ -107,19 +108,262 @@ simhash算法主要有五个阶段
 汉明距离算法：两个simhash值每一位进行异或，得到1的个数为汉明距离大小。
 
 
-## 具体实现
-
-1. 分词
-
-目前python常用的中文分词库有jieba，THULAC，pkuseg等
-
-本算法采用jieba分词，这个挺方便的。
+## 所用到的接口
 
 
 
+1. jieba包
+
+这个包主要用于分词。
+
+代码如图：
+![](README_files/1.jpg)
+
+cut用于分词，analyze用于分析权重。
+
+默认为精确模式。
+
+2. Simhash包
+
+这个包主要是提供一些simhash相关的计算方法。
+
+代码如图：
+![](README_files/2.jpg)
+
+主要是distance这个方法能直接计算距离，比较方便。
+
+
+## 类&函数以及其关系
+
+程序用到两个类，四个函数
+
+### SimHash类
+
+包含函数get_string和getHash
+
+get_string函数用于获取原字符串内容,getHash用于获取哈希值并且进行加权，合并，降维操作。
+
+两个函数的关系是：getHash调用了get_string
+
+### PlagiarismChecker类
+
+包含函数analyze\_similar\_text,check\_similar\_level
+
+analyze\_similar\_text函数调用getHash函数并计算海明距离，根据定义来判断文章相似度
+
+check\_similar\_level函数打开命令行给定文件，然后调用analyze\_similar\_text函数计算相似度并保留两位小数
+
+然后存储进一个新文件中输出，并关闭读写释放资源。
+
+# 测试
+
+## 命令行测试
+
+本例中命令行测试方法：python .\main.py 原文件目录 抄袭文件目录 新文件输出目录
+
+如图：
+![](README_files/3.jpg)
+
+对所有抄袭文件进行测试。
+![](README_files/4.jpg)
+
+### orig\_0.8_add.txt
+![](README_files/5.jpg)
+
+相似度为0.85，符合预期
+
+### orig\_0.8_del.txt
+![](README_files/6.jpg)
+
+相似度为0.79，在0.8左右，符合预期
+
+### orig\_0.8\_dis_1.txt
+![](README_files/7.jpg)
+
+相似度为0.77，符合预期
+
+### orig\_0.8\_dis_10.txt
+![](README_files/8.jpg)
+
+相似度也为0.77，符合预期
+
+### orig\_0.8\_dis_15.txt
+![](README_files/9.jpg)
+
+相似度为0.79，符合预期
+
+
+### 输出文件check.txt
+![](README_files/10.jpg)
+
+输出成功，因此命令行测试成功。
+
+## 性能测试
+
+### 时间分析
+要进行性能测试首先需要小改代码，让它能够在pycharm里运行
+
+我主要是改动了读写文件的地方，把之前的参数传入改成绝对路径。
+
+![](README_files/11.jpg)
+
+测试结果：
+
+![](README_files/12.jpg)
+
+可以运行，接下来进行性能测试。
+
+
+使用pycharm自带的profile功能进行测试
+![](README_files/13.jpg)
+
+我们按照时间从长到短排序，可以看到时间最长的是check\_similar_level,这个函数里调用了analyze\_similar\_text
+函数，而且其时间差不多，说明analyze\_similar\_text函数用时最长；其次，getHash用时也很长，但是考虑到其下面就是cut
+时间占其大多数，这说明分词也占了很多时间。
 
 
 
+### 改进方法
+想到的改进方法是采用更好的分词方法，比如THULAC或者别的。
+至于analyze\_similar\_text函数改进思来想去感觉也没啥改进的地方。
+
+
+## 单元测试
+单元测试用到python的unittest
+
+新建一个python文件命名为unit_test.py
+
+为了测试方便，代码需要大改
+
+改动之处：
+
+1：删除PlagiarismChecker类，类下两个函数直接单独定义，方便测试
+
+2：原代码是输出字符串，改动后直接返回结果，否则无法通过断言测试
+
+改动后代码：
+
+```
+
+(自67行起)
+def analyze_similar_text(text1, text2):
+    new_simash = SimHash()
+    first_hash = new_simash.getHash(text1)
+    second_hash = new_simash.getHash(text2)
+
+    text_first_hash = Simhash(first_hash)
+    text_second_hash = Simhash(second_hash)
+
+    distance = text_first_hash.distance(text_second_hash)
+    '''
+        .distance is a way in Simhash pack
+        '''
+
+    max_hashbit = max(len(bin(text_first_hash.value)), (len(bin(text_second_hash.value))))
+
+    if max_hashbit == 0:
+        return 0
+    else:
+        similar_level = 1 - distance / max_hashbit
+        return (similar_level)
+
+    '''
+         analyze_similar_text 分析并求出相似度（海明距离）
+        '''
+
+
+def check_similar_level():
+    try:
+
+        path1 = input("origin file:")
+        path2 = input("plagiarized file:")
+        path3 = 'C:/Users/70421/Desktop/homework1/3119005477/test/check.txt'
+
+        origin_file = open(path1, 'rt', encoding='utf-8')
+        plagiarize_file = open(path2, 'rt', encoding='utf-8')
+        similar_level_value = open(path3, 'a+', encoding='utf-8')
+
+        origin_file_source = origin_file.read()
+        plagiarize_file_source = plagiarize_file.read()
+
+        similar = analyze_similar_text(origin_file_source, plagiarize_file_source)
+        correct_similar = round(similar, 2)
+
+        str1 = "The similar level is: "
+        str2 = " between the two articles.\n"
+
+        similar_level_value.writelines(
+            str1 + str(correct_similar) + str2)
+        return correct_similar
+
+        origin_file.close()
+        plagiarize_file.close()
+        similar_level_value.close()
+    except IndexError:
+        print("Your input is wrong.")
+    except FileNotFoundError:
+        print("Can't find your files. Please check your files.")
+    except Exception as e:
+        print(f"Unknown Error:{e}")
+    return 0
+
+    '''
+        check_similar_level 打开文件，调用analyze_similar_level求出相似度并写入check.txt文件，然后关闭并释放资源
+        '''
+
+
+if __name__ == '__main__':
+    check_similar_level()
+
+
+
+
+
+```
+
+
+然后编写单元测试模块代码：
+
+```
+
+import unittest
+from main import check_similar_level
+
+
+class MyTestCase(unittest.TestCase):
+    def test_something(self):
+        self.assertEqual(check_similar_level(), 0.79)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+```
+
+这里选取的是orig.txt和orig\_0.8\_del.txt两个文件
+
+![](README_files/14.jpg)
+
+此处注意到运行后断言值为OK，说明实际上的相似度0.79等于我们设定的预期值。
+
+然后我们单独换一个抄袭文件测试：
+orig.txt和orig\_0.8\_dis\_15.txt
+![](README_files/15.jpg)
+
+![](README_files/16.jpg)
+
+这个也正好是0.79，测试通过
+
+再换一个文件：
+orig.txt和orig\_0.8\_add.txt
+![](README_files/17.jpg)
+
+![](README_files/18.jpg)
+
+这里就可以看到，我们预期的应该是0.85（对比得出相似度），这不等于我们设定的实际值0.79.
+
+至此测试结束。代码改回初版
 
 
 
