@@ -22,6 +22,10 @@ class SimHash(object):
             x = bin(x).replace('0b', '').zfill(64)[-64:]
             return str(x)
 
+    '''
+    get_string:获取原字符串内容用于分词以及后续操作
+    '''
+
     def getHash(self, getstr):
         seg = jieba.cut(getstr)
         Keywords = jieba.analyse.extract_tags("|".join(seg), topK=100, withWeight=True)
@@ -29,7 +33,9 @@ class SimHash(object):
         for keyword, weight in Keywords:
             source_str = self.get_string(keyword)
             keylists = []
-
+            '''
+            分词，并进行hash操作
+            '''
             for c in source_str:
                 weight = math.ceil(weight)
                 if c == "1":
@@ -37,6 +43,9 @@ class SimHash(object):
                 else:
                     keylists.append(-int(weight))
             Ret.append(keylists)
+            '''
+            加权，为1置正值，为0置赋值    
+            '''
 
         rows = len(Ret)
         cols = len(Ret[0])
@@ -51,6 +60,10 @@ class SimHash(object):
                 tmp = "0"
             result.append(tmp)
         return "".join(result)
+
+    '''
+    合并，并且降维    
+    '''
 
 
 class PlagiarismChecker():
@@ -75,6 +88,10 @@ class PlagiarismChecker():
         else:
             similar_level = 1 - distance / max_hashbit
             return (similar_level)
+
+    '''
+    analyze_similar_text 分析并求出相似度（海明距离）
+    '''
 
     def check_similar_level(self, argv):
         try:
@@ -106,6 +123,10 @@ class PlagiarismChecker():
         except Exception as e:
             print(f"Unknown Error:{e}")
         return 0
+
+    '''
+    check_similar_level 打开文件，调用analyze_similar_level求出相似度并写入check.txt文件，然后关闭并释放资源
+    '''
 
 
 if __name__ == '__main__':
