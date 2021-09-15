@@ -1,4 +1,5 @@
 import math
+from sys import argv
 import jieba
 import jieba.analyse
 from simhash import Simhash
@@ -65,71 +66,69 @@ class SimHash(object):
     '''
 
 
-def analyze_similar_text(text1, text2):
-    new_simash = SimHash()
-    first_hash = new_simash.getHash(text1)
-    second_hash = new_simash.getHash(text2)
+class PlagiarismChecker():
 
-    text_first_hash = Simhash(first_hash)
-    text_second_hash = Simhash(second_hash)
+    def analyze_similar_text(self, text1, text2):
+        new_simash = SimHash()
+        first_hash = new_simash.getHash(text1)
+        second_hash = new_simash.getHash(text2)
 
-    distance = text_first_hash.distance(text_second_hash)
-    '''
+        text_first_hash = Simhash(first_hash)
+        text_second_hash = Simhash(second_hash)
+
+        distance = text_first_hash.distance(text_second_hash)
+        '''
         .distance is a way in Simhash pack
         '''
 
-    max_hashbit = max(len(bin(text_first_hash.value)), (len(bin(text_second_hash.value))))
+        max_hashbit = max(len(bin(text_first_hash.value)), (len(bin(text_second_hash.value))))
 
-    if max_hashbit == 0:
+        if max_hashbit == 0:
+            return 0
+        else:
+            similar_level = 1 - distance / max_hashbit
+            return (similar_level)
+
+    '''
+    analyze_similar_text 分析并求出相似度（海明距离）
+    '''
+
+    def check_similar_level(self, argv):
+        try:
+
+            origin_file = open(argv[1], 'rt', encoding='utf-8')
+            plagiarize_file = open(argv[2], 'rt', encoding='utf-8')
+            similar_level_value = open(argv[3], 'a+', encoding='utf-8')
+
+            origin_file_source = origin_file.read()
+            plagiarize_file_source = plagiarize_file.read()
+
+            similar = self.analyze_similar_text(origin_file_source, plagiarize_file_source)
+            correct_similar = round(similar, 2)
+
+            str1 = "The similar level is: "
+            str2 = " between the two articles.\n"
+
+            similar_level_value.writelines(
+                str1 + str(correct_similar) + str2)
+            print(f"The similar level is: %.2f between article:{argv[1]} and article:{argv[2]}.\n" % correct_similar)
+
+            origin_file.close()
+            plagiarize_file.close()
+            similar_level_value.close()
+        except IndexError:
+            print("Your input is wrong.")
+        except FileNotFoundError:
+            print("Can't find your files. Please check your files.")
+        except Exception as e:
+            print(f"Unknown Error:{e}")
         return 0
-    else:
-        similar_level = 1 - distance / max_hashbit
-        return (similar_level)
 
     '''
-         analyze_similar_text 分析并求出相似度（海明距离）
-        '''
-
-
-def check_similar_level():
-    try:
-
-        path1 = input("origin file:")
-        path2 = input("plagiarized file:")
-        path3 = 'C:/Users/70421/Desktop/homework1/3119005477/test/check.txt'
-
-        origin_file = open(path1, 'rt', encoding='utf-8')
-        plagiarize_file = open(path2, 'rt', encoding='utf-8')
-        similar_level_value = open(path3, 'a+', encoding='utf-8')
-
-        origin_file_source = origin_file.read()
-        plagiarize_file_source = plagiarize_file.read()
-
-        similar = analyze_similar_text(origin_file_source, plagiarize_file_source)
-        correct_similar = round(similar, 2)
-
-        str1 = "The similar level is: "
-        str2 = " between the two articles.\n"
-
-        similar_level_value.writelines(
-            str1 + str(correct_similar) + str2)
-        return correct_similar
-
-        origin_file.close()
-        plagiarize_file.close()
-        similar_level_value.close()
-    except IndexError:
-        print("Your input is wrong.")
-    except FileNotFoundError:
-        print("Can't find your files. Please check your files.")
-    except Exception as e:
-        print(f"Unknown Error:{e}")
-    return 0
-
+    check_similar_level 打开文件，调用analyze_similar_level求出相似度并写入check.txt文件，然后关闭并释放资源
     '''
-        check_similar_level 打开文件，调用analyze_similar_level求出相似度并写入check.txt文件，然后关闭并释放资源
-        '''
 
 
 if __name__ == '__main__':
-    check_similar_level()
+    Check = PlagiarismChecker()
+    Check.check_similar_level(argv)
