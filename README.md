@@ -363,27 +363,71 @@ orig.txt和orig\_0.8\_add.txt
 
 这里就可以看到，我们预期的应该是0.85（对比得出相似度），这不等于我们设定的实际值0.79.
 
-至此测试结束。代码改回初版
+
+## 代码覆盖率
+![](README_files/19.jpg)
+
+可以看到主程序main.py覆盖率达到89%，审查代码发现是几个判断处没有覆盖到，这属于正常情况。
+
+至此测试结束。代码回滚到初版（命令行执行版本）
+
+## 异常处理说明
+```
+
+        except IndexError:
+            print("Your input is wrong.")
+        except FileNotFoundError:
+            print("Can't find your files. Please check your files.")
+        except Exception as e:
+            print(f"Unknown Error:{e}")
+        return 0
+
+```
+
+1. 如果参数输入错误或者没有输入参数，则程序出现异常，此时应响应并告知用户输入有错误。
+2. 如果文件路径错误，那么程序将无法读取文件，出现异常，此时也应告知用户文件路径输入错误。
+3. 其余情况则抛出异常。
 
 
 
+# 报告
+
+## 计算工作量（PSP表格
+
+|PSP2.1						|Personal Software Process Stages	|预估耗时（分钟） 	|实际耗时（分钟） 	|
+|:--						|:--								|:--:				|:--:				|
+|Planning					|计划								|__120__    		|__140__			|
+|· Estimate					|· 估计这个任务需要多少时间			|120   		    	|140    			|
+|Development				|开发								|__560__			|__970__			|
+|· Analysis					|· 需求分析 (包括学习新技术)          |420    			|450				|
+|· Design Spec              |· 生成设计文档					    |60     			|60 				|
+|· Design Review			|· 设计复审					    	|30             	|10 				|
+|· Coding Standard			|· 代码规范 (为目前的开发制定合适的规范)|10		    	|10 				|
+|· Design			    	|· 具体设计       					|60		    		|30 				|
+|· Coding					|· 具体编码  						|300				|360				|
+|· Code Review				|· 代码复审  						|20		     		|30 				|
+|· Test					    |· 测试（自我测试，修改代码，提交修改） |20 				|20 				|
+|Reporting					|报告    							|__80__				|__160__			|
+|· Test Report				|· 测试报告							|20 				|120				|
+|· Size Measurement			|· 计算工作量						|20 				|10 				|
+|· Postmortem & Process Improvement Plan|· 事后总结, 并提出过程改进计划|40				|30 				|
+|							|· 合计          					|760				|1270				|
 
 
+## 总结
+1. 在测试时花费太多时间调整错误。
+2. 因为一开始编码的结构性问题导致测试时需要对代码进行大型改动。
 
+改进：
+1. 在编写代码的时候要注意规范性。
+2. 在项目开始前先稳定的规划好每一块的结构和连接关系。
 
+# 参考文献
+[simhash](https://www2007.cpsc.ucalgary.ca/papers/paper215.pdf)
 
+https://blog.csdn.net/qq_40938678/article/details/105354002
 
-
-
-
-
-
-
-
-
-
-
-
+https://www.kancloud.cn/kancloud/the-art-of-programming/41614
 
 
 
